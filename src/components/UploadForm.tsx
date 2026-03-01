@@ -87,7 +87,29 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
             // EXIF parsing can fail on some formats — that's okay
         }
 
-        // No GPS found — prompt for manual location
+        // No EXIF GPS — try browser geolocation (useful when camera capture strips metadata)
+        if ('geolocation' in navigator) {
+            setStatus('📡 Getting device location...');
+            try {
+                const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 8000,
+                        maximumAge: 60000,
+                    });
+                });
+                setStatus('📍 Location obtained from device GPS!');
+                setCoords({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                });
+                return;
+            } catch {
+                // Geolocation denied or timed out — fall through to manual picker
+            }
+        }
+
+        // No GPS from EXIF or device — prompt for manual location
         setStatus('');
         setNeedsManualLocation(true);
         setPendingFile(selected);
@@ -107,13 +129,38 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
         setStatus('');
     }, [clearPreview]);
 
-    // ─── Convert file to base64 data URL ───
-    const toBase64 = (file: File): Promise<string> =>
+    // ─── Compress & resize image to stay under Vercel's 4.5 MB payload limit ───
+    const MAX_DIMENSION = 1024;  // px – longest side
+    const JPEG_QUALITY = 0.75;
+
+    const compressImage = (file: File): Promise<{ dataUrl: string; mimeType: string }> =>
         new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = () => reject(new Error('Failed to read file.'));
-            reader.readAsDataURL(file);
+            const img = new Image();
+            img.onload = () => {
+                // Calculate new dimensions while keeping aspect ratio
+                let { width, height } = img;
+                if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+                    if (width > height) {
+                        height = Math.round(height * (MAX_DIMENSION / width));
+                        width = MAX_DIMENSION;
+                    } else {
+                        width = Math.round(width * (MAX_DIMENSION / height));
+                        height = MAX_DIMENSION;
+                    }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) { reject(new Error('Could not create canvas context.')); return; }
+
+                ctx.drawImage(img, 0, 0, width, height);
+                const dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+                resolve({ dataUrl, mimeType: 'image/jpeg' });
+            };
+            img.onerror = () => reject(new Error('Failed to load image for compression.'));
+            img.src = URL.createObjectURL(file);
         });
 
     // ─── Submit handler ───
@@ -126,15 +173,15 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
         setError(null);
 
         try {
-            setStatus('Converting image...');
-            const base64Image = await toBase64(activeFile);
+            setStatus('Compressing image...');
+            const { dataUrl, mimeType } = await compressImage(activeFile);
 
             setStatus('🤖 Identifying species with Gemini AI...');
             const payload: IdentifyRequestBody = {
-                image: base64Image,
+                image: dataUrl,
                 latitude: coords.latitude,
                 longitude: coords.longitude,
-                mimeType: activeFile.type || 'image/jpeg',
+                mimeType,
             };
 
             const res = await fetch('/api/identify', {
@@ -191,7 +238,6 @@ export default function UploadForm({ onUploadSuccess }: UploadFormProps) {
                         <input
                             type="file"
                             accept="image/*"
-                            capture="environment"
                             className="hidden"
                             onChange={handleFileChange}
                             ref={fileInputRef}

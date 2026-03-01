@@ -78,6 +78,12 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no expla
   "description": "2-3 sentences describing the species' appearance, typical habitat, and notable behavior"
 }`;
 
+// Allow up to 4.5 MB request bodies (Vercel Hobby limit) and 30 s execution
+export const config = {
+    api: { bodyParser: { sizeLimit: '4.5mb' } },
+    maxDuration: 30,
+};
+
 export async function POST(req: NextRequest) {
     try {
         // 1. Parse and validate request body
