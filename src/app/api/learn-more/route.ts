@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
-
-// ─── Gemini client (singleton, reused across requests) ───
-const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY!,
-});
+import { geminiClient, parseGeminiJsonResponse } from '@/lib/gemini';
 
 const LEARN_MORE_PROMPT = (commonName: string, scientificName: string) =>
     `You are a biodiversity expert. Provide a detailed description of the species "${commonName}" (${scientificName}).
@@ -35,22 +30,15 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const response = await ai.models.generateContent({
+        const response = await geminiClient.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: [LEARN_MORE_PROMPT(common_name, scientific_name)],
         });
 
         const rawText = response.text ?? '';
-        const cleanText = rawText
-            .replace(/```json\s*/gi, '')
-            .replace(/```\s*/g, '')
-            .trim();
+        const parsed = parseGeminiJsonResponse(rawText);
 
-        let parsed: unknown;
-        try {
-            parsed = JSON.parse(cleanText);
-        } catch {
-            console.error('Gemini returned unparseable JSON:', rawText);
+        if (!parsed) {
             return NextResponse.json(
                 { error: 'AI returned an invalid response. Please try again.' },
                 { status: 502 }

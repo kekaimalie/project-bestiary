@@ -5,6 +5,10 @@ import dynamic from 'next/dynamic';
 import SpeciesSearch from './SpeciesSearch';
 import type { Sighting, SightingCategory } from '@/lib/types';
 import type L from 'leaflet';
+import { CATEGORY_ICONS } from '@/lib/constants';
+import Spinner from '@/components/ui/Spinner';
+import CategoryBadge from '@/components/ui/CategoryBadge';
+import ConfidenceBadge from '@/components/ui/ConfidenceBadge';
 
 // Dynamically import RegionSearchMap (Leaflet requires browser APIs)
 const RegionSearchMapNoSSR = dynamic(() => import('./RegionSearchMap'), {
@@ -16,19 +20,7 @@ const RegionSearchMapNoSSR = dynamic(() => import('./RegionSearchMap'), {
     ),
 });
 
-// ─── Category Emoji Map ───
-const categoryIcons: Record<SightingCategory, string> = {
-    plant: '🌿', bird: '🐦', mammal: '🦊', reptile: '🦎',
-    amphibian: '🐸', fish: '🐟', insect: '🦋', arachnid: '🕷️',
-    fungus: '🍄', other: '🔍',
-};
 
-// ─── Confidence badge colors ───
-const confidenceColors: Record<string, string> = {
-    high: 'bg-green-100 text-green-700',
-    medium: 'bg-yellow-100 text-yellow-700',
-    low: 'bg-red-100 text-red-700',
-};
 
 export default function FindTab() {
     // ── Region search state ──
@@ -281,7 +273,7 @@ export default function FindTab() {
                                                 <td className="px-6 py-3.5">
                                                     <div className="flex items-center gap-2.5">
                                                         <span className="text-lg leading-none">
-                                                            {categoryIcons[species.category] || '🔍'}
+                                                            {CATEGORY_ICONS[species.category] || '🔍'}
                                                         </span>
                                                         <span className="font-semibold text-slate-800">{species.common_name}</span>
                                                     </div>
@@ -290,9 +282,7 @@ export default function FindTab() {
                                                     {species.scientific_name}
                                                 </td>
                                                 <td className="px-6 py-3.5 text-center">
-                                                    <span className="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium capitalize">
-                                                        {species.category}
-                                                    </span>
+                                                    <CategoryBadge category={species.category} className="mx-auto" />
                                                 </td>
                                                 <td className="px-6 py-3.5 text-center">
                                                     <span className="inline-flex items-center justify-center min-w-[28px] h-7 bg-slate-100 text-slate-700 rounded-lg text-sm font-bold">
@@ -300,9 +290,7 @@ export default function FindTab() {
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-3.5 text-center hidden sm:table-cell">
-                                                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${confidenceColors[topConfidence] ?? 'bg-gray-100 text-gray-700'}`}>
-                                                        {topConfidence}
-                                                    </span>
+                                                    <ConfidenceBadge confidence={topConfidence} className="mx-auto" />
                                                 </td>
                                                 <td className="px-6 py-3.5 text-right text-slate-500 text-xs hidden lg:table-cell">
                                                     {new Date(species.latestDate).toLocaleDateString('en-US', {
@@ -362,10 +350,7 @@ export default function FindTab() {
                                     >
                                         {isBiosphereLoading ? (
                                             <>
-                                                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                                </svg>
+                                                <Spinner className="h-4 w-4" />
                                                 Analyzing ecosystem…
                                             </>
                                         ) : (

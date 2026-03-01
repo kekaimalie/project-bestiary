@@ -4,18 +4,13 @@ import { useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import type { Sighting, SightingCategory } from '@/lib/types';
+import type { Sighting } from '@/lib/types';
+import { CATEGORY_ICONS } from '@/lib/constants';
+import { leafletMarkerIcon } from '@/lib/leaflet-config';
+import Spinner from '@/components/ui/Spinner';
+import CategoryBadge from '@/components/ui/CategoryBadge';
+import ConfidenceBadge from '@/components/ui/ConfidenceBadge';
 
-// ─── Fix default Leaflet marker icons (broken by Webpack chunking) ───
-const markerIcon = new L.Icon({
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-});
 
 // ─── Helper: fly the map to a sighting and center the popup ───
 function FlyToLatest({ position }: { position: [number, number] | null }) {
@@ -40,26 +35,7 @@ function FlyToLatest({ position }: { position: [number, number] | null }) {
     return null;
 }
 
-// ─── Helper: color badge by confidence level ───
-const confidenceColors: Record<string, string> = {
-    high: 'bg-green-100 text-green-700',
-    medium: 'bg-yellow-100 text-yellow-700',
-    low: 'bg-red-100 text-red-700',
-};
 
-// ─── Map Category to Emoji Icon ───
-const categoryIcons: Record<SightingCategory, string> = {
-    plant: '🌿',
-    bird: '🐦',
-    mammal: '🦊',
-    reptile: '🦎',
-    amphibian: '🐸',
-    fish: '🐟',
-    insect: '🦋',
-    arachnid: '🕷️',
-    fungus: '🍄',
-    other: '🔍',
-};
 
 interface MapProps {
     sightings: Sighting[];
@@ -107,7 +83,7 @@ export default function Map({
                     <Marker
                         key={s.id}
                         position={[s.latitude, s.longitude]}
-                        icon={markerIcon}
+                        icon={leafletMarkerIcon}
                         eventHandlers={{
                             click: () => onMarkerClick?.(s)
                         }}
@@ -115,18 +91,14 @@ export default function Map({
                         <Popup className="max-w-xs" minWidth={240}>
                             <div className="flex flex-col gap-1">
                                 <h3 className="font-bold text-lg text-emerald-800 flex items-center gap-2">
-                                    <span className="text-xl leading-none">{categoryIcons[s.category] || '🔍'}</span>
+                                    <span className="text-xl leading-none">{CATEGORY_ICONS[s.category] || '🔍'}</span>
                                     {s.common_name}
                                 </h3>
                                 <p className="text-sm italic text-gray-600">{s.scientific_name}</p>
 
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium capitalize">
-                                        {s.category}
-                                    </span>
-                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${confidenceColors[s.confidence] ?? 'bg-gray-100 text-gray-700'}`}>
-                                        {s.confidence} confidence
-                                    </span>
+                                    <CategoryBadge category={s.category} />
+                                    <ConfidenceBadge confidence={s.confidence} showLabel />
                                 </div>
 
                                 <div className="mt-2 pt-2 border-t border-gray-100">
@@ -140,10 +112,7 @@ export default function Map({
                                     >
                                         {loadingDescriptions[s.id] ? (
                                             <>
-                                                <svg className="animate-spin h-3.5 w-3.5 text-emerald-600" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                                </svg>
+                                                <Spinner className="h-3.5 w-3.5 text-emerald-600" />
                                                 Fetching info...
                                             </>
                                         ) : loadedDescriptions[s.id] ? (

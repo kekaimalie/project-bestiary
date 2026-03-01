@@ -2,13 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { Sighting, SightingCategory } from '@/lib/types';
-
-// ─── Category Emoji Map ───
-const categoryIcons: Record<SightingCategory, string> = {
-    plant: '🌿', bird: '🐦', mammal: '🦊', reptile: '🦎',
-    amphibian: '🐸', fish: '🐟', insect: '🦋', arachnid: '🕷️',
-    fungus: '🍄', other: '🔍',
-};
+import { CATEGORY_ICONS } from '@/lib/constants';
+import Spinner from '@/components/ui/Spinner';
 
 interface Suggestion {
     common_name: string;
@@ -164,10 +159,7 @@ export default function SpeciesSearch({ onFlyTo }: SpeciesSearchProps) {
                         />
                     </div>
                     {isSearching && (
-                        <svg className="animate-spin h-4 w-4 text-emerald-500 flex-shrink-0" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>
+                        <Spinner className="h-4 w-4 text-emerald-500 flex-shrink-0" />
                     )}
                     {query && !isSearching && (
                         <button
@@ -198,7 +190,7 @@ export default function SpeciesSearch({ onFlyTo }: SpeciesSearchProps) {
                                 className="w-full text-left px-4 py-3 hover:bg-emerald-50 transition-colors flex items-center gap-3 border-b border-slate-50 last:border-b-0"
                             >
                                 <span className="text-xl leading-none">
-                                    {categoryIcons[s.category as SightingCategory] || '🔍'}
+                                    {CATEGORY_ICONS[s.category as SightingCategory] || '🔍'}
                                 </span>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-semibold text-slate-800 truncate">{s.common_name}</p>
@@ -234,10 +226,7 @@ export default function SpeciesSearch({ onFlyTo }: SpeciesSearchProps) {
 
                     {isLoadingOccurrences ? (
                         <div className="flex items-center justify-center py-8">
-                            <svg className="animate-spin h-6 w-6 text-emerald-500" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                            </svg>
+                            <Spinner className="h-6 w-6 text-emerald-500" />
                         </div>
                     ) : occurrences.length === 0 ? (
                         <p className="text-sm text-slate-500 text-center py-6">No sightings found.</p>

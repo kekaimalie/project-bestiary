@@ -4,43 +4,14 @@ import { useCallback, useState, useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import type { Sighting, SightingCategory } from '@/lib/types';
+import type { Sighting } from '@/lib/types';
+import { CATEGORY_ICONS } from '@/lib/constants';
+import { leafletMarkerIcon, leafletHighlightIcon } from '@/lib/leaflet-config';
+import Spinner from '@/components/ui/Spinner';
+import CategoryBadge from '@/components/ui/CategoryBadge';
+import ConfidenceBadge from '@/components/ui/ConfidenceBadge';
 
-// ─── Marker icon fix ───
-const markerIcon = new L.Icon({
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-});
 
-const highlightIcon = new L.Icon({
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-    className: 'highlighted-marker',
-});
-
-// ─── Category Emoji Map ───
-const categoryIcons: Record<SightingCategory, string> = {
-    plant: '🌿', bird: '🐦', mammal: '🦊', reptile: '🦎',
-    amphibian: '🐸', fish: '🐟', insect: '🦋', arachnid: '🕷️',
-    fungus: '🍄', other: '🔍',
-};
-
-// ─── Confidence badge colors ───
-const confidenceColors: Record<string, string> = {
-    high: 'bg-green-100 text-green-700',
-    medium: 'bg-yellow-100 text-yellow-700',
-    low: 'bg-red-100 text-red-700',
-};
 
 // ─── Sub-component: Listen for map moves to enable the "Search This Area" button ───
 function MapMoveListener({ onMoved }: { onMoved: () => void }) {
@@ -154,24 +125,20 @@ export default function RegionSearchMap({
                         icon={
                             s.id === highlightedSightingId ||
                                 (highlightedSpeciesName && s.common_name === highlightedSpeciesName)
-                                ? highlightIcon
-                                : markerIcon
+                                ? leafletHighlightIcon
+                                : leafletMarkerIcon
                         }
                     >
                         <Popup className="max-w-xs" minWidth={220}>
                             <div className="flex flex-col gap-1">
                                 <h3 className="font-bold text-base text-emerald-800 flex items-center gap-2">
-                                    <span className="text-lg leading-none">{categoryIcons[s.category] || '🔍'}</span>
+                                    <span className="text-lg leading-none">{CATEGORY_ICONS[s.category] || '🔍'}</span>
                                     {s.common_name}
                                 </h3>
                                 <p className="text-xs italic text-gray-600">{s.scientific_name}</p>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium capitalize">
-                                        {s.category}
-                                    </span>
-                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${confidenceColors[s.confidence] ?? 'bg-gray-100 text-gray-700'}`}>
-                                        {s.confidence}
-                                    </span>
+                                    <CategoryBadge category={s.category} />
+                                    <ConfidenceBadge confidence={s.confidence} />
                                 </div>
                                 <time className="text-[10px] text-gray-400 mt-1 text-right block border-t pt-1 border-gray-100">
                                     {new Date(s.created_at).toLocaleDateString()}
@@ -193,10 +160,7 @@ export default function RegionSearchMap({
                     >
                         {isSearching ? (
                             <>
-                                <svg className="animate-spin h-4 w-4 text-emerald-500" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                </svg>
+                                <Spinner className="h-4 w-4 text-emerald-500" />
                                 Searching…
                             </>
                         ) : (

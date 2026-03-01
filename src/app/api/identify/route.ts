@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
 import crypto from 'crypto';
 import { supabase } from '@/lib/supabase';
 import type { GeminiIdentificationResult, IdentifyRequestBody } from '@/lib/types';
-
-// ─── Gemini client (singleton, reused across requests) ───
-const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY!,
-});
+import { geminiClient, parseGeminiJsonResponse } from '@/lib/gemini';
 
 // ─── Valid categories and confidence levels for validation ───
 const VALID_CATEGORIES = new Set([
@@ -117,7 +112,7 @@ export async function POST(req: NextRequest) {
         }
 
         // 3. Send to Gemini for identification
-        const response = await ai.models.generateContent({
+        const response = await geminiClient.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: [
                 IDENTIFICATION_PROMPT,
@@ -132,16 +127,9 @@ export async function POST(req: NextRequest) {
 
         // 4. Parse and validate the AI response
         const rawText = response.text ?? '';
-        const cleanText = rawText
-            .replace(/```json\s*/gi, '')
-            .replace(/```\s*/g, '')
-            .trim();
+        const parsed = parseGeminiJsonResponse(rawText);
 
-        let parsed: unknown;
-        try {
-            parsed = JSON.parse(cleanText);
-        } catch {
-            console.error('Gemini returned unparseable JSON:', rawText);
+        if (!parsed) {
             return NextResponse.json(
                 { error: 'AI returned an invalid response. Please try again.' },
                 { status: 502 }
