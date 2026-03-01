@@ -132,10 +132,10 @@ export default function Home() {
                 <path d="M 55 27 L 65 37" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
                 <path fillRule="evenodd" clipRule="evenodd" d="M 5 35 h 5 v -5 a 2 2 0 0 1 2 -2 h 8 a 2 2 0 0 1 2 2 v 5 h 13 v -6 a 2 2 0 0 1 2 -2 h 26 a 2 2 0 0 1 2 2 v 6 h 30 a 5 5 0 0 1 5 5 v 40 a 5 5 0 0 1 -5 5 h -90 a 5 5 0 0 1 -5 -5 v -40 a 5 5 0 0 1 5 -5 Z M 50 80 a 20 20 0 1 0 0 -40 a 20 20 0 0 0 0 40 Z" />
               </svg>
-              <span>活 | FindMyFauna</span>
+              <span> | FindMyFauna</span>
             </h1>
             <p className="text-emerald-200 mt-1 text-sm md:text-base max-w-xl">
-              Snap a photo, ID the species with AI, and map biodiversity in real-time.
+              Snap a photo and ID the species with Google Gemini 2.5 Flash.
             </p>
           </div>
           <div className="hidden md:flex items-center gap-4">

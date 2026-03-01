@@ -8,10 +8,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "EcoMap — AI Biodiversity Mapping",
+  title: "FindMyFauna — AI Biodiversity Mapping",
   description:
-    "Upload wildlife and plant photos, identify species with Gemini AI, and map biodiversity sightings in real-time.",
-  keywords: ["biodiversity", "wildlife", "AI", "mapping", "ecology", "species identification"],
+    "Snap a photo and ID the species with Google Gemini 2.5 Flash. Map biodiversity sightings in real-time.",
+  keywords: ["biodiversity", "wildlife", "AI", "mapping", "ecology", "species identification", "Gemini"],
 };
 
 export default function RootLayout({
