@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { Sighting, SightingCategory } from '@/lib/types';
-import { CATEGORY_ICONS } from '@/lib/constants';
+import { CategoryIcon } from '@/components/ui/CategoryIcon';
 import Spinner from '@/components/ui/Spinner';
 
 interface Suggestion {
@@ -189,8 +189,8 @@ export default function SpeciesSearch({ onFlyTo }: SpeciesSearchProps) {
                                 onClick={() => handleSelectSpecies(s)}
                                 className="w-full text-left px-4 py-3 hover:bg-emerald-50 transition-colors flex items-center gap-3 border-b border-slate-50 last:border-b-0"
                             >
-                                <span className="text-xl leading-none">
-                                    {CATEGORY_ICONS[s.category as SightingCategory] || '🔍'}
+                                <span className="text-xl leading-none flex items-center justify-center">
+                                    <CategoryIcon category={s.category as SightingCategory} />
                                 </span>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-semibold text-slate-800 truncate">{s.common_name}</p>
@@ -274,7 +274,7 @@ export default function SpeciesSearch({ onFlyTo }: SpeciesSearchProps) {
             {!selectedSpecies && (
                 <div className="flex-1 flex items-center justify-center py-8">
                     <div className="text-center">
-                        <div className="text-4xl mb-3">🔬</div>
+                        <div className="text-4xl mb-3"></div>
                         <p className="text-sm text-slate-500 max-w-[200px]">
                             Search for a species to view all recorded sightings
                         </p>

@@ -5,8 +5,9 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { Sighting } from '@/lib/types';
-import { CATEGORY_ICONS } from '@/lib/constants';
-import { leafletMarkerIcon } from '@/lib/leaflet-config';
+import { leafletMarkerIcon, getCategoryMapIcon } from '@/lib/leaflet-config';
+import { CategoryIcon } from '@/components/ui/CategoryIcon';
+import { GeminiIcon } from '@/components/ui/GeminiIcon';
 import Spinner from '@/components/ui/Spinner';
 import CategoryBadge from '@/components/ui/CategoryBadge';
 import ConfidenceBadge from '@/components/ui/ConfidenceBadge';
@@ -83,7 +84,7 @@ export default function Map({
                     <Marker
                         key={s.id}
                         position={[s.latitude, s.longitude]}
-                        icon={leafletMarkerIcon}
+                        icon={getCategoryMapIcon(s.category)}
                         eventHandlers={{
                             click: () => onMarkerClick?.(s)
                         }}
@@ -91,7 +92,7 @@ export default function Map({
                         <Popup className="max-w-xs" minWidth={240}>
                             <div className="flex flex-col gap-1">
                                 <h3 className="font-bold text-lg text-emerald-800 flex items-center gap-2">
-                                    <span className="text-xl leading-none">{CATEGORY_ICONS[s.category] || '🔍'}</span>
+                                    <span className="text-xl leading-none flex items-center justify-center"><CategoryIcon category={s.category} /></span>
                                     {s.common_name}
                                 </h3>
                                 <p className="text-sm italic text-gray-600">{s.scientific_name}</p>
@@ -123,7 +124,7 @@ export default function Map({
                                                 Details Loaded!
                                             </>
                                         ) : (
-                                            <>✨ Learn more with Gemini</>
+                                            <><GeminiIcon className="w-4 h-4 flex-shrink-0" /> Learn more with Gemini</>
                                         )}
                                     </button>
                                 </div>

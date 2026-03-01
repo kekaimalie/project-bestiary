@@ -5,8 +5,8 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 're
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { Sighting } from '@/lib/types';
-import { CATEGORY_ICONS } from '@/lib/constants';
-import { leafletMarkerIcon, leafletHighlightIcon } from '@/lib/leaflet-config';
+import { leafletMarkerIcon, leafletHighlightIcon, getCategoryMapIcon } from '@/lib/leaflet-config';
+import { CategoryIcon } from '@/components/ui/CategoryIcon';
 import Spinner from '@/components/ui/Spinner';
 import CategoryBadge from '@/components/ui/CategoryBadge';
 import ConfidenceBadge from '@/components/ui/ConfidenceBadge';
@@ -125,14 +125,14 @@ export default function RegionSearchMap({
                         icon={
                             s.id === highlightedSightingId ||
                                 (highlightedSpeciesName && s.common_name === highlightedSpeciesName)
-                                ? leafletHighlightIcon
-                                : leafletMarkerIcon
+                                ? getCategoryMapIcon(s.category, true)
+                                : getCategoryMapIcon(s.category, false)
                         }
                     >
                         <Popup className="max-w-xs" minWidth={220}>
                             <div className="flex flex-col gap-1">
                                 <h3 className="font-bold text-base text-emerald-800 flex items-center gap-2">
-                                    <span className="text-lg leading-none">{CATEGORY_ICONS[s.category] || '🔍'}</span>
+                                    <span className="text-lg leading-none flex items-center justify-center"><CategoryIcon category={s.category} className="w-5 h-5" /></span>
                                     {s.common_name}
                                 </h3>
                                 <p className="text-xs italic text-gray-600">{s.scientific_name}</p>

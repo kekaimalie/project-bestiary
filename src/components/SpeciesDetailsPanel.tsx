@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Sighting } from '@/lib/types';
 import Spinner from '@/components/ui/Spinner';
+import { GeminiIcon } from '@/components/ui/GeminiIcon';
 
 interface DynamicSection {
     header: string;
@@ -217,7 +218,7 @@ export default function SpeciesDetailsPanel({
                         {fetchedDescription ? (
                             <div className="space-y-3">
                                 <h3 className="font-bold text-emerald-800 flex items-center gap-2 text-base">
-                                    ✨ About this species
+                                    <GeminiIcon className="w-5 h-5 flex-shrink-0" /> About this species
                                 </h3>
 
                                 {Array.isArray(sections) ? (
@@ -238,7 +239,7 @@ export default function SpeciesDetailsPanel({
                                                     className={`${theme.bg} p-3.5 rounded-lg border ${theme.border} text-sm`}
                                                 >
                                                     <span className={`font-semibold ${theme.color} flex items-center gap-1.5 mb-1.5 text-xs uppercase tracking-wider`}>
-                                                        <span className="text-base leading-none">{section.icon || '✨'}</span>
+                                                        <span className="text-base leading-none flex items-center justify-center" style={{ fontFamily: "'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif" }}>{section.icon || <GeminiIcon className="w-4 h-4" />}</span>
                                                         {section.header}
                                                     </span>
                                                     <p className="text-slate-700 leading-relaxed">{section.content}</p>
@@ -285,44 +286,45 @@ export default function SpeciesDetailsPanel({
                                             <Spinner className="h-4 w-4" />
                                             Asking Gemini...
                                         </>
-                                    ) : (
-                                        <>
-                                            ✨ Learn more with Gemini
-                                        </>
-                                    )}
+                                    ) : <>
+                                        <GeminiIcon className="w-4 h-4 flex-shrink-0 text-white" /> Learn more with Gemini
+                                    </>
+                                    }
                                 </button>
                                 {error && <p className="text-xs text-red-500">{error}</p>}
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* ── Lightbox Modal ── */}
-            {lightboxOpen && speciesImageUrl && (
-                <div
-                    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn cursor-zoom-out"
-                    onClick={() => setLightboxOpen(false)}
-                    role="dialog"
-                    aria-label="Image viewer"
-                >
-                    <button
+            {
+                lightboxOpen && speciesImageUrl && (
+                    <div
+                        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn cursor-zoom-out"
                         onClick={() => setLightboxOpen(false)}
-                        className="absolute top-4 right-4 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center text-2xl transition-colors z-10"
-                        aria-label="Close image viewer"
+                        role="dialog"
+                        aria-label="Image viewer"
                     >
-                        &times;
-                    </button>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        src={speciesImageUrl}
-                        alt={`Full view of ${sighting.common_name}`}
-                        className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl animate-scaleIn"
-                        onClick={(e) => e.stopPropagation()}
-                    />
-                    <span className="absolute bottom-6 text-white/60 text-xs">Image via Wikipedia • Click outside or press Esc to close</span>
-                </div>
-            )}
+                        <button
+                            onClick={() => setLightboxOpen(false)}
+                            className="absolute top-4 right-4 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center text-2xl transition-colors z-10"
+                            aria-label="Close image viewer"
+                        >
+                            &times;
+                        </button>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={speciesImageUrl}
+                            alt={`Full view of ${sighting.common_name}`}
+                            className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl animate-scaleIn"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                        <span className="absolute bottom-6 text-white/60 text-xs">Image via Wikipedia • Click outside or press Esc to close</span>
+                    </div>
+                )
+            }
         </>
     );
 }

@@ -12,6 +12,7 @@ html {
 body {
   background: #f8fafb;
   color: #1e293b;
+  font-family: var(--font-sans), 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
 }
 
 /* ─── Leaflet popup overrides for consistent styling ─── */

@@ -5,7 +5,8 @@ import dynamic from 'next/dynamic';
 import SpeciesSearch from './SpeciesSearch';
 import type { Sighting, SightingCategory } from '@/lib/types';
 import type L from 'leaflet';
-import { CATEGORY_ICONS } from '@/lib/constants';
+import { CategoryIcon } from '@/components/ui/CategoryIcon';
+import { GeminiIcon } from '@/components/ui/GeminiIcon';
 import Spinner from '@/components/ui/Spinner';
 import CategoryBadge from '@/components/ui/CategoryBadge';
 import ConfidenceBadge from '@/components/ui/ConfidenceBadge';
@@ -272,8 +273,8 @@ export default function FindTab() {
                                             >
                                                 <td className="px-6 py-3.5">
                                                     <div className="flex items-center gap-2.5">
-                                                        <span className="text-lg leading-none">
-                                                            {CATEGORY_ICONS[species.category] || '🔍'}
+                                                        <span className="text-lg leading-none flex items-center justify-center">
+                                                            <CategoryIcon category={species.category} />
                                                         </span>
                                                         <span className="font-semibold text-slate-800">{species.common_name}</span>
                                                     </div>
@@ -354,7 +355,7 @@ export default function FindTab() {
                                                 Analyzing ecosystem…
                                             </>
                                         ) : (
-                                            <>✨ Get Biosphere Insight</>
+                                            <><GeminiIcon className="w-4 h-4 flex-shrink-0 text-white" /> Get Biosphere Insight</>
                                         )}
                                     </button>
                                     {biosphereError && <p className="text-xs text-red-500">{biosphereError}</p>}

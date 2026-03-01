@@ -64,9 +64,10 @@ export default function Home() {
   }, [fetchSightings]);
 
   // ─── Handle a successful upload ───
-  const handleUploadSuccess = useCallback((sighting: Sighting, description: string) => {
+  const handleUploadSuccess = useCallback((sighting: Sighting, _description: string) => {
     // Show the new upload in the details panel (persistent)
-    setSelectedSighting({ sighting, initialDescription: description });
+    // Don't pass the old-format description — let the user use "Learn More" for the modern sectioned format
+    setSelectedSighting({ sighting });
 
     // Prepend to the sightings list (no re-fetch needed)
     setSightings((prev) => [sighting, ...prev]);
@@ -123,8 +124,15 @@ export default function Home() {
       <header className="bg-gradient-to-r from-emerald-800 to-emerald-700 text-white py-5 px-6 shadow-lg flex-shrink-0">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
-              🌿 EcoMap
+            <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 90" className="w-9 h-9 text-emerald-300" fill="currentColor">
+                <path d="M 45 35 C 45 -5, 87 -5, 95 5 C 85 30, 75 35, 45 35 Z" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="round" />
+                <path d="M 45 35 Q 73 17 95 5" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+                <path d="M 68 19 L 58 7" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+                <path d="M 55 27 L 65 37" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+                <path fillRule="evenodd" clipRule="evenodd" d="M 5 35 h 5 v -5 a 2 2 0 0 1 2 -2 h 8 a 2 2 0 0 1 2 2 v 5 h 13 v -6 a 2 2 0 0 1 2 -2 h 26 a 2 2 0 0 1 2 2 v 6 h 30 a 5 5 0 0 1 5 5 v 40 a 5 5 0 0 1 -5 5 h -90 a 5 5 0 0 1 -5 -5 v -40 a 5 5 0 0 1 5 -5 Z M 50 80 a 20 20 0 1 0 0 -40 a 20 20 0 0 0 0 40 Z" />
+              </svg>
+              <span>活 | FindMyFauna</span>
             </h1>
             <p className="text-emerald-200 mt-1 text-sm md:text-base max-w-xl">
               Snap a photo, ID the species with AI, and map biodiversity in real-time.
@@ -152,8 +160,8 @@ export default function Home() {
               aria-selected={activeTab === 'explore'}
               onClick={() => setActiveTab('explore')}
               className={`relative px-5 py-3.5 text-sm font-semibold transition-all duration-200 rounded-t-lg ${activeTab === 'explore'
-                  ? 'text-emerald-700 bg-emerald-50/80'
-                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                ? 'text-emerald-700 bg-emerald-50/80'
+                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                 }`}
             >
               <span className="flex items-center gap-2">
@@ -172,8 +180,8 @@ export default function Home() {
               aria-selected={activeTab === 'find'}
               onClick={() => setActiveTab('find')}
               className={`relative px-5 py-3.5 text-sm font-semibold transition-all duration-200 rounded-t-lg ${activeTab === 'find'
-                  ? 'text-emerald-700 bg-emerald-50/80'
-                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                ? 'text-emerald-700 bg-emerald-50/80'
+                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                 }`}
             >
               <span className="flex items-center gap-2">
